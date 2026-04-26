@@ -1,0 +1,25 @@
+{
+  "name": "Auditorías KTMEX 2026",
+  "short_name": "Auditorías",
+  "description": "Auditorías de seguridad: Grúa Viajera, Die Car, Montacargas y Tugger",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#161616",
+  "theme_color": "#F47C20",
+  "orientation": "portrait",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- PWA — iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Auditorías">
+<link rel="apple-touch-icon" href="icon-192.png">
+<!-- PWA — Android / Chrome -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F47C20">
+<title>Auditorías KTMEX 2026</title>
+<style>
+/* ─── RESET — NO -webkit-touch-callout en * (bloquea taps en iOS) ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  background: #161616; color: #F0F0F0;
+  min-height: 100vh; padding-bottom: 60px;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ─── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --or: #F47C20; --or-lt: rgba(244,124,32,.15);
+  --d1: #161616; --d2: #222222; --d3: #2E2E2E; --d4: #3A3A3A;
+  --st: #718096; --wh: #F0F0F0;
+  --gn: #27AE60; --gn-lt: #D4EFDF;
+  --rd: #C0392B; --rd-lt: #FADBD8;
+  --br: #404040; --rr: 10px;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────────── */
+.hdr {
+  background: var(--d2); border-bottom: 3px solid var(--or);
+  padding: 14px 16px 12px;
+  position: -webkit-sticky; position: sticky;
+  top: 0; z-index: 100;
+}
+.hdr-brand { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--or); }
+.hdr-title { font-size: 20px; font-weight: 800; margin-top: 2px; }
+.hdr-title b { color: var(--or); font-weight: 800; }
+.hdr-sub   { font-size: 11px; color: var(--st); margin-top: 2px; min-height: 16px; }
+.prog { margin-top: 10px; height: 3px; background: var(--d4); border-radius: 2px; overflow: hidden; }
+.prog-f { height: 100%; background: var(--or); border-radius: 2px; transition: width .4s; }
+
+/* ─── PAGES ──────────────────────────────────────────────────── */
+.pg { display: none; padding: 16px; }
+.pg.on { display: block; }
+
+/* ─── SECTION LABEL ──────────────────────────────────────────── */
+.slbl {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--or);
+  text-transform: uppercase; margin-bottom: 14px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--br);
+}
+
+/* ─── AUDIT TYPE GRID ────────────────────────────────────────── */
+.at-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+
+/* Botón de tipo de auditoría — SIN transform en active para iOS */
+.at-btn {
+  display: block; width: 100%;
+  background: var(--d3); border: 2px solid var(--br);
+  border-radius: var(--rr); padding: 16px 8px;
+  text-align: center; cursor: pointer; color: var(--wh);
+  -webkit-appearance: none; appearance: none; outline: none;
+  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+}
+.at-btn.sel { border-color: var(--or); background: var(--or-lt); }
+.at-icon { font-size: 28px; display: block; margin-bottom: 6px; pointer-events: none; }
+.at-name { font-size: 13px; font-weight: 700; display: block; pointer-events: none; }
+.at-cnt  { font-size: 11px; color: var(--st); display: block; margin-top: 2px; pointer-events: none; }
+
+/* ─── FIELDS ─────────────────────────────────────────────────── */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--st); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+}
+.req { color: var(--or); }
+.field input, .field select, .field textarea {
+  width: 100%; background: var(--d3); color: var(--wh);
+  border: 1.5px solid var(--br); border-radius: var(--rr);
+  padding: 13px 14px; font-size: 16px; outline: none;
+  -webkit-appearance: none; appearance: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--or); }
+.field textarea { resize: none; min-height: 80px; }
+.sel-w { position: relative; }
+.sel-w::after {
+  content: '▾'; position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%); color: var(--or); pointer-events: none;
+}
+
+/* ─── RADIO BUTTONS — <button> real, SIN transform en active ─── */
+.rg { display: flex; gap: 8px; flex-wrap: wrap; }
+.rb {
+  flex: 1; min-width: 68px; padding: 11px 6px;
+  background: var(--d3); border: 1.5px solid var(--br);
+  border-radius: var(--rr); text-align: center;
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--st);
+  -webkit-appearance: none; appearance: none; outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+}
+.rb.sel { background: var(--or); border-color: var(--or); color: #fff; }
+
+/* ─── CHECKLIST ITEMS ────────────────────────────────────────── */
+.ci {
+  background: var(--d2); border: 1px solid var(--br);
+  border-radius: var(--rr); padding: 14px; margin-bottom: 10px;
+}
+.ci.ok  { border-color: var(--gn); }
+.ci.nok { border-color: var(--rd); }
+.ci-q { display: flex; gap: 10px; margin-bottom: 12px; }
+.ci-n { font-size: 12px; font-weight: 800; color: var(--or); min-width: 24px; padding-top: 1px; }
+.ci-t { font-size: 13.5px; line-height: 1.5; flex: 1; }
+
+/* SÍ/NO — botones reales, SIN transform en active */
+.yn { display: flex; gap: 8px; }
+.yb {
+  flex: 1; padding: 11px; border-radius: 8px;
+  border: 1.5px solid var(--br); background: var(--d3);
+  color: var(--st); font-size: 14px; font-weight: 800;
+  cursor: pointer; letter-spacing: 1px;
+  -webkit-appearance: none; appearance: none; outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+}
+.yb.yes { background: var(--gn); border-color: var(--gn); color: #fff; }
+.yb.no  { background: var(--rd); border-color: var(--rd); color: #fff; }
+
+/* ─── SCORE CARD ─────────────────────────────────────────────── */
+.sc-card {
+  background: var(--d2); border: 2px solid var(--or);
+  border-radius: 14px; padding: 20px; margin-bottom: 18px; text-align: center;
+}
+.sc-lbl { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--st); text-transform: uppercase; }
+.sc-big { font-size: 52px; font-weight: 900; line-height: 1; margin-top: 4px; }
+.sc-big small { font-size: 26px; color: var(--or); }
+.sc-pct { font-size: 22px; font-weight: 800; margin-top: 4px; }
+.sc-bdg {
+  margin-top: 10px; padding: 5px 16px; border-radius: 20px;
+  display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+}
+.bdg-ok  { background: var(--gn-lt); color: var(--gn); }
+.bdg-nok { background: var(--rd-lt); color: var(--rd); }
+
+/* ─── FIRMA / CANVAS ──────────────────────────────────────────── */
+.sig-blk { margin-bottom: 20px; }
+.sig-ttl { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--or); text-transform: uppercase; margin-bottom: 8px; }
+.sig-box {
+  background: #ffffff; border-radius: 8px;
+  border: 2px solid var(--br); position: relative;
+  /* touch-action:none en el contenedor para iOS */
+  touch-action: none; overflow: hidden;
+}
+.sig-box canvas {
+  display: block; width: 100%;
+  /* canvas NO hereda touch-action, se pone explícito también */
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
+  cursor: crosshair;
+}
+.sig-hint {
+  position: absolute; top: 8px; left: 10px;
+  font-size: 10px; color: #bbb; letter-spacing: 1px;
+  text-transform: uppercase; pointer-events: none;
+  -webkit-user-select: none; user-select: none;
+}
+.sig-clear {
+  width: 100%; padding: 10px; background: var(--d3); color: var(--st);
+  border: none; border-top: 1px solid var(--br);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  -webkit-appearance: none; appearance: none; outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ─── BOTONES DE NAVEGACIÓN ──────────────────────────────────── */
+.btn-row { display: flex; gap: 10px; margin-top: 22px; }
+.btn {
+  flex: 1; padding: 16px; border-radius: var(--rr); border: none;
+  font-size: 15px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase; cursor: pointer;
+  -webkit-appearance: none; appearance: none; outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+}
+.btn-p { background: var(--or); color: #fff; }
+.btn-s { background: var(--d3); color: var(--st); border: 1.5px solid var(--br); }
+.btn-g { background: var(--gn); color: #fff; }
+
+/* ─── INFO BOX ───────────────────────────────────────────────── */
+.ib {
+  background: var(--d3); border-left: 3px solid var(--or);
+  border-radius: var(--rr); padding: 10px 12px;
+  margin-bottom: 14px; font-size: 12px; color: var(--st); line-height: 1.5;
+}
+
+/* ─── RESUMEN ────────────────────────────────────────────────── */
+.rr-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--br); font-size: 13px; }
+.rr-row:last-child { border-bottom: none; }
+.rr-k { color: var(--st); }
+.rr-v { font-weight: 600; text-align: right; max-width: 58%; word-break: break-word; }
+
+/* ─── TOAST ──────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--d2); color: var(--wh);
+  padding: 12px 22px; border-radius: 30px;
+  font-size: 14px; font-weight: 600;
+  border: 1px solid var(--br);
+  transition: transform .3s; z-index: 999;
+  white-space: nowrap; pointer-events: none;
+}
+.toast.on  { transform: translateX(-50%) translateY(0); }
+.toast.ok  { border-color: var(--gn); color: var(--gn); }
+.toast.err { border-color: var(--rd); color: var(--rd); }
+
+/* ─── MISC ───────────────────────────────────────────────────── */
+hr { border: none; border-top: 1px solid var(--br); margin: 18px 0; }
+.spin {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+  border-radius: 50%; animation: sp .7s linear infinite; margin-right: 8px; vertical-align: middle;
+}
+@keyframes sp { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ── Banner instalar en pantalla de inicio (Android/Chrome) ── -->
+<div id="installBanner" style="display:none;background:#1a3a1a;border-bottom:3px solid #27AE60;padding:12px 16px;font-size:13px;color:#d4efdf;">
+  <strong style="color:#27AE60;">📲 Instalar como app:</strong>
+  Agrega esta auditoría a tu pantalla de inicio para acceso rápido sin internet.
+  <div style="display:flex;gap:8px;margin-top:10px;">
+    <button onclick="instalarApp()" style="flex:1;background:#27AE60;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;font-family:inherit;">
+      ✓ Instalar app
+    </button>
+    <button onclick="document.getElementById('installBanner').style.display='none'" style="background:#2a2a2a;color:#888;border:1px solid #444;border-radius:8px;padding:10px 14px;font-size:13px;cursor:pointer;touch-action:manipulation;font-family:inherit;">
+      No
+    </button>
+  </div>
+</div>
+
+<!-- ── Banner iPhone: instrucciones agregar a pantalla de inicio ── -->
+<div id="iosBanner" style="display:none;background:#1a2a3a;border-bottom:3px solid #4A9EFF;padding:14px 16px;font-size:13px;color:#ddeeff;line-height:1.5;">
+  <strong style="color:#4A9EFF;">📱 Instalar en iPhone:</strong><br>
+  Para usarla como app sin abrir el navegador:<br>
+  <ol style="margin:8px 0 10px 18px;">
+    <li>Toca el ícono <strong>Compartir</strong> 🔗 en la barra de Safari</li>
+    <li>Selecciona <strong>"Agregar a pantalla de inicio"</strong></li>
+    <li>Toca <strong>"Agregar"</strong> — aparecerá el ícono naranja</li>
+  </ol>
+  <button onclick="document.getElementById('iosBanner').style.display='none'" style="background:#4A9EFF;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;font-family:inherit;">
+    Entendido ✓
+  </button>
+</div>
+
+<!-- ══════ HEADER ══════ -->
+<div class="hdr">
+  <div class="hdr-brand">KTMEX · Seguridad Industrial</div>
+  <div class="hdr-title">Auditorías <b>2026</b></div>
+  <div class="hdr-sub" id="hSub">Selecciona el tipo de auditoría</div>
+  <div class="prog"><div class="prog-f" id="pFill" style="width:20%"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PÁG 1 — TIPO + DATOS GENERALES
+══════════════════════════════════════════════ -->
+<div class="pg on" id="pg1">
+  <div class="slbl">Tipo de auditoría</div>
+
+  <div class="at-grid">
+    <button class="at-btn" id="ab-grua"        type="button"        onclick="selAudit('grua')">
+      <span class="at-icon">🏗️</span><span class="at-name">Grúa Viajera</span><span class="at-cnt">39 puntos</span>
+    </button>
+    <button class="at-btn" id="ab-diecar"      type="button"      onclick="selAudit('diecar')">
+      <span class="at-icon">🚛</span><span class="at-name">Die Car</span><span class="at-cnt">22 puntos</span>
+    </button>
+    <button class="at-btn" id="ab-montacargas" type="button" onclick="selAudit('montacargas')">
+      <span class="at-icon">🏋️</span><span class="at-name">Montacargas</span><span class="at-cnt">40 puntos</span>
+    </button>
+    <button class="at-btn" id="ab-tugger"      type="button"      onclick="selAudit('tugger')">
+      <span class="at-icon">🚜</span><span class="at-name">Tugger</span><span class="at-cnt">39 puntos</span>
+    </button>
+  </div>
+
+  <div class="slbl">Información general</div>
+
+  <div class="field">
+    <label>Fecha <span class="req">*</span></label>
+    <input type="date" id="fFecha">
+  </div>
+
+  <div class="field">
+    <label>Turno <span class="req">*</span></label>
+    <div class="rg" id="gTurno">
+      <button class="rb" type="button" data-v="Azul" onclick="selRad('gTurno',this)">Azul</button>
+      <button class="rb" type="button" data-v="Verde" onclick="selRad('gTurno',this)">Verde</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Nombre del Auditor <span class="req">*</span></label>
+    <input type="text" id="fAuditor" placeholder="Nombre completo" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>Puesto del Auditor <span class="req">*</span></label>
+    <div class="rg" id="gPuesto" style="flex-wrap:wrap;">
+      <button class="rb" type="button" data-v="AM" onclick="selRad('gPuesto',this)">AM</button>
+      <button class="rb" type="button" data-v="ING" onclick="selRad('gPuesto',this)">ING</button>
+      <button class="rb" type="button" data-v="GL" onclick="selRad('gPuesto',this)">GL</button>
+      <button class="rb" type="button" data-v="CTC/TC" onclick="selRad('gPuesto',this)">CTC/TC</button>
+      <button class="rb" type="button" data-v="TL" onclick="selRad('gPuesto',this)">TL</button>
+      <button class="rb" type="button" data-v="TT" onclick="selRad('gPuesto',this)">TT</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-p" type="button" onclick="goTo(2)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PÁG 2 — CHECKLIST
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg2">
+  <div class="slbl" id="p2Lbl">Checklist</div>
+  <div class="ib"   id="p2Inf">Responde Sí o No a cada punto.</div>
+  <div id="clList"></div>
+  <div class="btn-row">
+    <button class="btn btn-s" type="button" onclick="goTo(1)">← Atrás</button>
+    <button class="btn btn-p" type="button" onclick="goTo(3)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PÁG 3 — OPERADOR Y COMENTARIOS
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg3">
+  <div class="slbl">Información del operador</div>
+
+  <div class="field">
+    <label>Operador <span class="req">*</span></label>
+    <div class="sel-w">
+      <select id="sOp" onchange="chkOtro('sOp','fOpOtro')">
+        <option value="">Selecciona el operador</option>
+      </select>
+    </div>
+  </div>
+  <div class="field" id="fOpOtro" style="display:none;">
+    <label>Escribir nombre del operador</label>
+    <input type="text" id="iOpOtro" placeholder="Número y nombre completo">
+  </div>
+
+  <div class="field">
+    <label>TL / GL <span class="req">*</span></label>
+    <div class="sel-w">
+      <select id="sTlgl" onchange="chkOtro('sTlgl','fTlglOtro')">
+        <option value="">Selecciona TL o GL</option>
+      </select>
+    </div>
+  </div>
+  <div class="field" id="fTlglOtro" style="display:none;">
+    <label>Escribir nombre TL/GL</label>
+    <input type="text" id="iTlglOtro" placeholder="Área – Nombre completo">
+  </div>
+
+  <hr>
+  <div class="slbl">Comentarios</div>
+  <div class="field">
+    <label>Observaciones durante la auditoría</label>
+    <textarea id="fComent" placeholder="Describe las observaciones encontradas..."></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" type="button" onclick="goTo(2)">← Atrás</button>
+    <button class="btn btn-p" type="button" onclick="goTo(4)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PÁG 4 — RESULTADO Y FIRMAS
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg4">
+  <div class="slbl">Resultado</div>
+  <div class="sc-card">
+    <div class="sc-lbl">Puntuación obtenida</div>
+    <div class="sc-big" id="scNum">0 <small>/ 0</small></div>
+    <div class="sc-pct" id="scPct">0%</div>
+    <div class="sc-bdg" id="scBdg">--</div>
+  </div>
+
+  <div class="ib">
+    <strong>TM</strong> firma confirmando que fue informado del resultado.<br>
+    <strong>TL/GL</strong> firma confirmando el desempeño del operador.
+  </div>
+
+  <div class="sig-blk">
+    <div class="sig-ttl">✍ Firma TM – Operador</div>
+    <div class="sig-box" id="boxTM">
+      <canvas id="cvsTM" height="150"></canvas>
+      <span class="sig-hint">Firmar con el dedo</span>
+    </div>
+    <button class="sig-clear" type="button" onclick="clearCvs('cvsTM')">🗑 Borrar firma TM</button>
+    <div class="field" style="margin-top:8px;margin-bottom:0;">
+      <label>Nombre TM</label>
+      <input type="text" id="fNmTM" placeholder="Nombre del operador">
+    </div>
+  </div>
+
+  <div class="sig-blk">
+    <div class="sig-ttl">✍ Firma TL / GL</div>
+    <div class="sig-box" id="boxTLGL">
+      <canvas id="cvsTLGL" height="150"></canvas>
+      <span class="sig-hint">Firmar con el dedo</span>
+    </div>
+    <button class="sig-clear" type="button" onclick="clearCvs('cvsTLGL')">🗑 Borrar firma TL/GL</button>
+    <div class="field" style="margin-top:8px;margin-bottom:0;">
+      <label>Nombre TL/GL</label>
+      <input type="text" id="fNmTLGL" placeholder="Nombre del TL o GL">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" type="button" onclick="goTo(3)">← Atrás</button>
+    <button class="btn btn-p" type="button" onclick="goTo(5)">Ver resumen →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PÁG 5 — RESUMEN Y ENVÍO
+══════════════════════════════════════════════ -->
+<div class="pg" id="pg5">
+  <div class="slbl">Resumen final</div>
+  <div id="resBox" style="background:var(--d2);border:1px solid var(--br);border-radius:var(--rr);padding:14px;margin-bottom:18px;"></div>
+  <div class="btn-row" style="flex-direction:column;gap:10px;">
+    <button class="btn btn-g" id="btnSend" type="button" onclick="enviar()">
+      📤 Guardar en Base de Datos
+    </button>
+    <button class="btn btn-s" type="button" onclick="goTo(4)">← Revisar firmas</button>
+  </div>
+  <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--st);">
+    ¿Sin internet?
+    <button type="button" style="background:none;border:none;color:var(--or);font-size:12px;cursor:pointer;padding:0;font-family:inherit;" onclick="copiar()">
+      Copiar datos al portapapeles
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     DATOS Y LÓGICA
+══════════════════════════════════════════════ -->
+<script>
+/* ─── CONFIGURACIÓN ─────────────────────────────────────────── */
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5wgO0KOdDtl5s7oMFPEl7FZTD_jQevIvpVxYr5fa8HKoX4ut19UwCbVVrBfl73nU3MA/exec';
+
+/* ─── AUDITORÍAS ─────────────────────────────────────────────── */
+var AUDITS = {
+  grua: {
+    label: 'Grúa Viajera', icon: '🏗️',
+    rules: [
+      '¿El operador cuenta con DC3, licencia vigente y ha recibido el entrenamiento interno de grúas?',
+      '¿El personal TL, GL o superior respeta el diagrama de flujo y/o procedimiento de aprendizaje de la grúa?',
+      '¿El operador realiza la hoja de verificación antes de cualquier operación de grúa y la firma?',
+      '¿El operador realiza la hoja de verificación en la zona de inspección de ganchos designada del área?',
+      '¿El TL o GL firma la hoja de verificación en los días y horarios asignados?',
+      '¿El operador reporta al TL/GL cada anormalidad detectada al realizar la lista de verificación?',
+      '¿El operador evita elevar cargas que excedan la capacidad nominal de la grúa?',
+      '¿El operador porta su EPP completo antes de operar (casco, lentes, chaleco, mangas, guantes, tapones y zapatos)?',
+      '¿El operador confirma con el silbato y señala la dirección al realizar desplazamientos con o sin carga?',
+      '¿El operador realiza confirmación con YOSHI al colocar o quitar accesorios (tamakake, TONG, eslingas, estrobos)?',
+      '¿El operador y demás personal evitan subirse a una carga de la grúa?',
+      '¿El operador evita manejar la carga por encima de personas?',
+      '¿Ninguna persona pasa por debajo de cargas elevadas?',
+      '¿El operador mantiene la vista en la carga en todo momento y no le da la espalda durante la operación?',
+      '¿El operador evita usar teléfono, auriculares y/o radio mientras opera la grúa?',
+      '¿El operador traslada la carga sobre la altura mínima marcada en columnas o banderines?',
+      '¿El operador evita usar la grúa para jalar cargas?',
+      '¿El operador no usa la grúa si el cable presenta daños o anomalías?',
+      '¿El operador se desplaza en diagonal (~45°) a al menos 1.5 metros de la carga?',
+      '¿El operador evita movimientos simultáneos y realiza solo un movimiento a la vez?',
+      '¿El operador evita dejar cargas suspendidas?',
+      '¿El operador utiliza accesorios adecuados y verifica sus especificaciones antes de usarlos?',
+      '¿El operador evita elevar más de una carga a la vez con la grúa?',
+      '¿El operador mantiene el control de la grúa en buenas condiciones, limpio y sin golpes?',
+      '¿El operador coloca el control de la grúa en su lugar designado al terminar la operación?',
+      '¿El operador coloca la cinta delimitadora antes de operar y la retira al terminar?',
+      '¿Ninguna persona retira las cintas delimitadoras sin confirmar que la grúa está apagada?',
+      '¿El operador confirma su punto seguro antes de operar y señala si la grúa está encendida o apagada?',
+      '¿El operador traslada los componentes de troqueles a la altura del operador en mantenimiento troqueles?',
+      '¿El volteo de troqueles se realiza en el área asignada (tapete de volteo)?',
+      '¿El operador realiza el volteo de troqueles con el doble gancho?',
+      '¿El operador sigue el manual de operación estándar del uso de la grúa?',
+      '¿El operador mantiene sujeta la carga y coloca el paro de emergencia al colocar troqueles en la torre?',
+      '¿El operador mantiene una distancia mínima de 0.5 metros de estructuras o equipos al usar la grúa?',
+      '¿El TL, GL y/o superior evita autorizar a personal sin certificación para operar la grúa?',
+      '¿El operador eleva la carga unos centímetros para comprobar el centrado (jigiri) aproximadamente 5 segundos?',
+      '¿El operador usa el silbato únicamente para confirmaciones de grúa y evita su mal uso?',
+      '¿Ninguna persona habla o distrae al operador de grúa durante su operación?',
+      '¿El operador mantiene la funda y correa del control de la grúa en buenas condiciones?',
+    ],
+    operators: [
+      '10005 JOSE ANDRES GONZALEZ TORRES',
+      '10034 ALFREDO QUINTANILLA PORTOCARRERO',
+      '10056 JOSE ALONSO ROJAS HERNANDEZ',
+      '10060 FLORENCIO AGUILERA HERNANDEZ',
+      '10071 VICTOR ALFONSO RAMIREZ GALVAN',
+      '10078 ANDRES OMAR FLORES GARCIA',
+    ],
+    tlgl: [
+      'TR1 – ST – Benjamin Herrera Lara',
+      'TR2 – DM – Karen Lucia Barajas Rodriguez',
+      'DIE – ST – Hiram Hernandez Medrano',
+      'ING – ST – Victor Saul Hernandez Lopez',
+      'BL – GL – Alvaro Obregon Zuñiga',
+      'DM – GL – Sandra Jaqueline Serrano Cano',
+    ]
+  },
+  diecar: {
+    label: 'Die Car', icon: '🚛',
+    rules: [
+      '¿El operador porta su EPP completo en todo momento?',
+      '¿El operador lleva su licencia vigente en lugar visible?',
+      '¿El operador realiza el checklist previo a la operación?',
+      '¿El entrenamiento se realiza bajo supervisión autorizada?',
+      '¿El operador respeta la velocidad asignada para el die car?',
+      '¿El operador realiza confirmación Shisakosho en cruces y puntos ciegos?',
+      '¿El operador mantiene distancia mínima de 2 m a peatones y equipos?',
+      '¿El operador respeta el estándar de manejo del die car?',
+      '¿El operador evita transportar troqueles fuera de las dimensiones del die car?',
+      '¿El operador respeta el límite de carga del die car?',
+      '¿El operador evita transportar personas en el die car?',
+      '¿El operador evita usar celular o radio mientras opera?',
+      '¿El operador evita jugar con el equipo?',
+      '¿El operador asegura el troquel antes de trasladarlo?',
+      '¿El operador evita trasladar troqueles empalmados?',
+      '¿El operador se alinea correctamente según el trayecto definido?',
+      '¿El operador conduce siempre hacia adelante (evita la reversa)?',
+      '¿El operador hace alto total, apaga y guarda el control al detenerse?',
+      '¿El operador evita mover el die car durante la carga y descarga del troquel?',
+      '¿El operador confirma al colocar o retirar estrobos o accesorios?',
+      '¿El operador respeta la carga máxima del die car en todo momento?',
+      '¿El operador apaga y retira la llave si se aleja de la operación?',
+    ],
+    operators: [
+      '20010 CARLOS MENDOZA VILLA',
+      '20015 JORGE ANTONIO RAMOS PEREZ',
+      '20022 RAFAEL HERNANDEZ BLANCO',
+      '20030 ERNESTO CASTILLO LUNA',
+      '20041 ALEJANDRO DIAZ MORENO',
+      '20050 ROBERTO SOSA GUERRERO',
+    ],
+    tlgl: [
+      'DIE – GL – Miguel Angel Torres Ruiz',
+      'DIE – TL – Ana Gabriela Flores Medina',
+      'STAMP – GL – Pedro Ivan Salazar Cruz',
+      'STAMP – TL – Claudia Berenice Rios Vega',
+    ]
+  },
+  montacargas: {
+    label: 'Montacargas', icon: '🏋️',
+    rules: [
+      '¿El operador porta su EPP completo (casco, lentes, chaleco, mangas, guantes, tapones y zapatos)?',
+      '¿El operador realiza el Checklist de verificación previo a la operación?',
+      '¿El operador porta su licencia de manejo vigente y visible en todo momento?',
+      '¿El entrenamiento se realiza bajo supervisión de entrenadores o GL del área?',
+      '¿El operador sube de frente al equipo utilizando los tres puntos de apoyo?',
+      '¿El operador se coloca correctamente el cinturón de seguridad al subir y durante toda la operación?',
+      '¿El operador respeta el límite de velocidad de 10 km/h con horquillas a 15 cm del suelo?',
+      '¿El operador mantiene distancia mínima de 3 metros entre montacargas?',
+      '¿El operador toca claxon, se detiene y confirma (Shisakosho) en intersecciones y puntos ciegos?',
+      '¿El operador circula con torreta y faros encendidos en todo momento?',
+      '¿El operador evita rebasar unidades en movimiento?',
+      '¿El operador pasa a 1 metro de separación de equipos detenidos al rebasar?',
+      '¿El operador mantiene distancia mínima de 2 metros entre el montacargas y peatones?',
+      '¿El operador respeta los límites de carga del equipo?',
+      '¿El operador evita tener, trasladar o consumir alimentos mientras opera?',
+      '¿El operador evita consumir líquidos con el equipo en movimiento?',
+      '¿El operador evita transportar personas en la cabina o mecanismos de levante?',
+      '¿El operador respeta los sentidos de circulación y rutas definidas?',
+      '¿El operador evita usar celular o radio mientras opera y se detiene para contestar?',
+      '¿El operador evita jugar con el montacargas?',
+      '¿El operador verifica que el material esté acomodado y asegurado antes de trasladarlo?',
+      '¿El operador eleva las horquillas a 15 cm del suelo e inclina a más de 90° al trasladar?',
+      '¿El operador al ir de reversa verifica ruta, usa espejos, gira el cuerpo y usa el claxón?',
+      '¿El operador evita trasladar mercancía en tarimas dañadas?',
+      '¿El operador se alinea a la derecha al encontrarse con otro equipo de frente?',
+      '¿El operador respeta la estiba conforme al estándar de operación de contenedores?',
+      '¿El operador evita frenar de manera brusca o abrupta con o sin carga?',
+      '¿El operador evita empujar material o equipo con la punta de las horquillas?',
+      '¿El operador verifica que no haya obstáculos al elevar o descender la carga?',
+      '¿El operador apoya la carga en la parrilla de seguridad e inclina el mástil hacia atrás?',
+      '¿El operador centra perfectamente las cargas cuidando que pines y campanas embonen?',
+      '¿El operador respeta el estándar de operación de contenedores al estibar?',
+      '¿El operador evita realizar dobles movimientos?',
+      '¿Ningún peatón se encuentra entre un objeto fijo y el equipo móvil?',
+      '¿El operador verifica que no haya personal cerca al realizar carga, descarga o traslado?',
+      '¿El operador respeta al peatón y las áreas asignadas para tránsito peatonal?',
+      '¿El operador evita el paso de peatones cuando las horquillas están levantadas?',
+      '¿El operador inclina horquillas a piso y apaga el equipo si un peatón se acerca?',
+      '¿El peatón hace alto total en intersecciones y espera indicación del operador?',
+      '¿El operador al bajar activa freno, neutral, inclina torre, baja horquillas y apaga el equipo?',
+    ],
+    operators: [
+      '30005 JUAN PABLO ORTIZ MENDEZ',
+      '30011 EDGAR NOEL GARCIA VARGAS',
+      '30019 MARCO ANTONIO JUAREZ SILVA',
+      '30025 HECTOR MANUEL LARA DOMINGUEZ',
+      '30033 SAMUEL ALEJANDRO RIOS NIETO',
+      '30040 GILBERTO ESPINOZA CORONA',
+    ],
+    tlgl: [
+      'LOG – GL – Diana Laura Castellanos Reyes',
+      'LOG – TL – Jose Luis Avila Montoya',
+      'PROD – GL – Patricia Salgado Ibarra',
+      'PROD – TL – Roberto Carlos Meza Trejo',
+    ]
+  },
+  tugger: {
+    label: 'Tugger', icon: '🚜',
+    rules: [
+      '¿El operador porta su EPP completo (casco, lentes, chaleco, mangas, guantes, tapones y zapatos)?',
+      '¿El operador porta su licencia de manejo vigente y visible en todo momento?',
+      '¿El operador realiza el Checklist de verificación previo a la operación?',
+      '¿El entrenamiento se realiza bajo supervisión de entrenadores o GL del área?',
+      '¿El operador sube de frente al equipo utilizando los tres puntos de apoyo?',
+      '¿El operador respeta el límite de velocidad de 10 km/h?',
+      '¿El operador mantiene distancia mínima de 3 metros entre tugger y montacargas?',
+      '¿El operador toca claxon, se detiene y confirma (Shisakosho) en intersecciones y puntos ciegos?',
+      '¿El operador evita rebasar unidades en movimiento?',
+      '¿El operador pasa a 1 metro de separación de equipos detenidos al rebasar?',
+      '¿El operador mantiene distancia mínima de 2 metros entre el equipo y peatones?',
+      '¿El operador respeta el estándar de arrastre y conoce la placa de datos del equipo?',
+      '¿El operador evita tener, trasladar o consumir alimentos mientras opera?',
+      '¿El operador evita consumir líquidos con el equipo en movimiento?',
+      '¿El operador evita transportar personas en el equipo?',
+      '¿El operador respeta los sentidos de circulación y rutas definidas?',
+      '¿El operador evita usar celular o radio mientras opera y se detiene para contestar?',
+      '¿El operador evita giros sobre su propio eje con dollies o hanger dolly enganchados?',
+      '¿El operador evita jugar con el tugger?',
+      '¿El operador verifica que el material esté debidamente acomodado y asegurado?',
+      '¿El operador evita trasladar mercancía en dollies o hanger dollies dañados?',
+      '¿El operador se alinea a la derecha al encontrarse con otro equipo de frente?',
+      '¿El operador respeta el estándar de operación de arrastre en el traslado?',
+      '¿El operador evita frenar de manera brusca con o sin carga?',
+      '¿El operador evita cambios de sentido en U con dollies o hanger dolly enganchados?',
+      '¿El operador evita conducir de reversa con dollies o hanger dollies enganchados?',
+      '¿El operador baja del equipo para realizar carga, descarga, enganche o desenganche?',
+      '¿El operador y peatones evitan cruzar entre dollies o hanger dollies enganchados?',
+      '¿El operador realiza confirmación al enganchar o desenganchar?',
+      '¿El operador coloca el freno a los dollies cuando se cargan o descargan con montacargas?',
+      '¿El operador apaga el equipo y retira la llave si se aleja de su operación?',
+      '¿Ningún peatón se encuentra entre un objeto fijo y el equipo móvil?',
+      '¿El operador respeta al peatón y las áreas asignadas para tránsito peatonal?',
+      '¿El operador apaga el equipo cuando un peatón se acerca a dar indicación?',
+      '¿El peatón hace alto total en intersecciones y espera indicación del operador?',
+      '¿El operador al bajar apaga el equipo y quita la llave del switch?',
+      '¿El operador baja de espaldas utilizando los 3 puntos de apoyo?',
+      '¿El operador coloca el equipo en el lugar de estacionamiento señalado al terminar?',
+      '¿El operador evita obstruir hidrantes, extintores, salidas o pasillos al estacionar?',
+    ],
+    operators: [
+      '40003 IVAN ALEJANDRO MORALES JIMENEZ',
+      '40009 ABEL ANTONIO CHAVEZ PAREDES',
+      '40017 OSCAR MANUEL VALDEZ RIOS',
+      '40024 FELIX ERNESTO ROMERO BERNAL',
+      '40031 GERARDO LUIS PONCE AGUIRRE',
+      '40039 ARTURO RAFAEL SOLIS NAVARRO',
+    ],
+    tlgl: [
+      'LOG – GL – Diana Laura Castellanos Reyes',
+      'LOG – TL – Jose Luis Avila Montoya',
+      'MAT – GL – Silvia Nohemi Pedraza Campos',
+      'MAT – TL – Eduardo Arturo Fuentes Vega',
+    ]
+  }
+};
+
+/* ─── ESTADO ─────────────────────────────────────────────────── */
+var S = { type: null, ans: {}, sigTM: '', sigTLGL: '' };
+var PAGES = ['','DATOS GENERALES','CHECKLIST','OPERADOR','FIRMAS','RESUMEN'];
+
+/* touch-action:manipulation en CSS elimina el delay 300ms en iOS — método correcto */
+function tapAudit(e, t)  { e.preventDefault(); selAudit(t); }
+function tapRad(e, g, el){ e.preventDefault(); selRad(g, el); }
+function tapNav(e, n)    { e.preventDefault(); goTo(n); }
+function tapClear(e, id) { e.preventDefault(); clearCvs(id); }
+function tapSend(e)      { e.preventDefault(); enviar(); }
+function tapCopiar(e)    { e.preventDefault(); copiar(); }
+
+/* ─── SELECCIÓN DE AUDITORÍA ────────────────────────────────── */
+function selAudit(t) {
+  S.type = t; S.ans = {};
+  ['grua','diecar','montacargas','tugger'].forEach(function(k) {
+    document.getElementById('ab-'+k).classList.remove('sel');
+  });
+  document.getElementById('ab-'+t).classList.add('sel');
+}
+
+/* ─── RADIO BUTTONS ─────────────────────────────────────────── */
+function selRad(grpId, el) {
+  var btns = document.querySelectorAll('#'+grpId+' .rb');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('sel');
+  el.classList.add('sel');
+}
+function radVal(grpId) {
+  var el = document.querySelector('#'+grpId+' .rb.sel');
+  return el ? el.getAttribute('data-v') : '';
+}
+
+/* ─── CHECKLIST ──────────────────────────────────────────────── */
+function buildChecklist() {
+  var a = AUDITS[S.type];
+  var c = document.getElementById('clList');
+  c.innerHTML = '';
+  document.getElementById('p2Lbl').textContent = a.icon + ' ' + a.label + ' — Checklist';
+  document.getElementById('p2Inf').textContent = 'Responde Sí o No a cada punto. Total: ' + a.rules.length + ' puntos.';
+  a.rules.forEach(function(txt, i) {
+    var n = i + 1;
+    var ans = S.ans[n];
+    var div = document.createElement('div');
+    div.className = 'ci' + (ans === true ? ' ok' : ans === false ? ' nok' : '');
+    div.id = 'ci-' + n;
+    div.innerHTML =
+      '<div class="ci-q"><span class="ci-n">' + n + '.</span><span class="ci-t">' + txt + '</span></div>' +
+      '<div class="yn">' +
+        '<button class="yb' + (ans === true ? ' yes' : '') + '" type="button" id="yy'+n+'"  onclick="setAns('+n+',true)">✓ SÍ</button>' +
+        '<button class="yb' + (ans === false ? ' no' : '')  + '" type="button" id="yn'+n+'" onclick="setAns('+n+',false)">✗ NO</button>' +
+      '</div>';
+    c.appendChild(div);
+  });
+}
+function tapAns(e, n, v) { e.preventDefault(); setAns(n, v); }
+function setAns(n, v) {
+  S.ans[n] = v;
+  document.getElementById('ci-'+n).className = 'ci ' + (v ? 'ok' : 'nok');
+  document.getElementById('yy'+n).className = 'yb' + (v ? ' yes' : '');
+  document.getElementById('yn'+n).className = 'yb' + (!v ? ' no' : '');
+  updScore();
+}
+
+/* ─── SELECTS OPERADOR/TLGL ─────────────────────────────────── */
+function buildSelects() {
+  var a = AUDITS[S.type];
+  fillSel('sOp',   a.operators, 'Selecciona el operador');
+  fillSel('sTlgl', a.tlgl,      'Selecciona TL o GL');
+}
+function fillSel(id, arr, ph) {
+  var s = document.getElementById(id);
+  s.innerHTML = '<option value="">' + ph + '</option>';
+  arr.forEach(function(v) {
+    var o = document.createElement('option');
+    o.value = v; o.textContent = v; s.appendChild(o);
+  });
+  var o2 = document.createElement('option');
+  o2.value = 'Otro'; o2.textContent = 'Otro / Escribir manualmente'; s.appendChild(o2);
+}
+function chkOtro(selId, fieldId) {
+  document.getElementById(fieldId).style.display =
+    document.getElementById(selId).value === 'Otro' ? '' : 'none';
+}
+
+/* ─── SCORE ──────────────────────────────────────────────────── */
+function calcScore() {
+  var total = AUDITS[S.type].rules.length, pts = 0;
+  for (var k in S.ans) { if (S.ans[k] === true) pts++; }
+  return { pts: pts, total: total, pct: Math.round(pts / total * 100) };
+}
+function updScore() {
+  if (!S.type) return;
+  var sc = calcScore(), pass = sc.pct >= 80;
+  document.getElementById('scNum').innerHTML = sc.pts + ' <small>/ ' + sc.total + '</small>';
+  document.getElementById('scPct').textContent = sc.pct + '%';
+  document.getElementById('scPct').style.color = pass ? 'var(--gn)' : 'var(--rd)';
+  var b = document.getElementById('scBdg');
+  b.textContent = pass ? '✓ CUMPLE' : '✗ NO CUMPLE';
+  b.className = 'sc-bdg ' + (pass ? 'bdg-ok' : 'bdg-nok');
+}
+
+/* ─── CANVAS / FIRMA ─────────────────────────────────────────── */
+/* 
+  FIX iOS: No clonamos el canvas (bug DPR). No usamos DPR scaling.
+  Usamos el ancho CSS directamente. getBoundingClientRect() 
+  ya devuelve coordenadas del viewport — coincide con clientX/Y.
+*/
+var _cvsInit = {};
+function initCvs(id) {
+  var c = document.getElementById(id);
+  if (!c) return;
+
+  // Establecer dimensiones en píxeles CSS (sin multiplicar por DPR)
+  var w = c.parentNode.clientWidth || 300;
+  c.width  = w;
+  c.height = 150;
+  c.style.width  = w + 'px';
+  c.style.height = '150px';
+
+  var ctx = c.getContext('2d');
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth   = 2.5;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+
+  // Evitar añadir listeners duplicados
+  if (_cvsInit[id]) return;
+  _cvsInit[id] = true;
+
+  var drawing = false, lx = 0, ly = 0;
+
+  function pos(e) {
+    /* getBoundingClientRect() ya descuenta el scroll del viewport */
+    var r   = c.getBoundingClientRect();
+    var src = (e.touches && e.touches.length > 0) ? e.touches[0]
+            : (e.changedTouches && e.changedTouches.length > 0) ? e.changedTouches[0]
+            : e;
+    return { x: src.clientX - r.left, y: src.clientY - r.top };
+}
+
+  function onStart(e) {
+    e.preventDefault();
+    drawing = true;
+    var p = pos(e); lx = p.x; ly = p.y;
+    var ctx2 = c.getContext('2d');
+    ctx2.beginPath(); ctx2.moveTo(lx, ly);
+  }
+  function onMove(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    var p = pos(e);
+    var ctx2 = c.getContext('2d');
+    ctx2.lineTo(p.x, p.y); ctx2.stroke();
+    lx = p.x; ly = p.y;
+  }
+  function onEnd(e) { e.preventDefault(); drawing = false; }
+
+  /* Táctil — passive:false obligatorio en iOS Safari */
+  c.addEventListener('touchstart',  onStart, { passive: false });
+  c.addEventListener('touchmove',   onMove,  { passive: false });
+  c.addEventListener('touchend',    onEnd,   { passive: false });
+  c.addEventListener('touchcancel', onEnd,   { passive: false });
+
+  /* Mouse — para desktop */
+  c.addEventListener('mousedown',  onStart);
+  c.addEventListener('mousemove',  onMove);
+  c.addEventListener('mouseup',    onEnd);
+  c.addEventListener('mouseleave', function() { drawing = false; });
+}
+
+function clearCvs(id) {
+  var c = document.getElementById(id);
+  c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
+
+/* ─── NAVEGACIÓN ─────────────────────────────────────────────── */
+function goTo(n) {
+  if (!validate(n - 1)) return;
+  if (n === 2) { buildChecklist(); buildSelects(); }
+  if (n === 4) { updScore(); /* init canvas después del render */ setTimeout(function() { initCvs('cvsTM'); initCvs('cvsTLGL'); }, 80); }
+  if (n === 5) { S.sigTM = document.getElementById('cvsTM').toDataURL('image/png'); S.sigTLGL = document.getElementById('cvsTLGL').toDataURL('image/png'); buildSummary(); }
+
+  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('on'); });
+  document.getElementById('pg' + n).classList.add('on');
+  window.scrollTo(0, 0);
+  document.getElementById('pFill').style.width = (n / 5 * 100) + '%';
+  var a = S.type ? AUDITS[S.type] : null;
+  document.getElementById('hSub').textContent = (a ? a.label + ' — ' : '') + PAGES[n];
+}
+
+/* ─── VALIDACIÓN ─────────────────────────────────────────────── */
+function validate(n) {
+  if (n === 1) {
+    if (!S.type)   return toast('Selecciona el tipo de auditoría', 'err'), false;
+    if (!document.getElementById('fFecha').value) return toast('Selecciona la fecha', 'err'), false;
+    if (!radVal('gTurno'))  return toast('Selecciona el turno', 'err'), false;
+    if (!document.getElementById('fAuditor').value.trim()) return toast('Escribe el nombre del auditor', 'err'), false;
+    if (!radVal('gPuesto')) return toast('Selecciona el puesto del auditor', 'err'), false;
+  }
+  if (n === 2) {
+    var total = AUDITS[S.type].rules.length;
+    var done  = Object.keys(S.ans).length;
+    if (done < total) {
+      toast('Faltan ' + (total - done) + ' punto(s) sin respuesta', 'err');
+      for (var i = 1; i <= total; i++) {
+        if (S.ans[i] === undefined) {
+          var el = document.getElementById('ci-' + i);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
+      return false;
+    }
+  }
+  if (n === 3) {
+    if (!document.getElementById('sOp').value)   return toast('Selecciona el operador', 'err'), false;
+    if (!document.getElementById('sTlgl').value) return toast('Selecciona TL/GL', 'err'), false;
+  }
+  return true;
+}
+
+/* ─── RESUMEN ────────────────────────────────────────────────── */
+function opVal()   { return document.getElementById('sOp').value   === 'Otro' ? document.getElementById('iOpOtro').value   : document.getElementById('sOp').value; }
+function tlglVal() { return document.getElementById('sTlgl').value === 'Otro' ? document.getElementById('iTlglOtro').value : document.getElementById('sTlgl').value; }
+
+function buildSummary() {
+  var sc = calcScore(), a = AUDITS[S.type];
+  var rows = [
+    ['Tipo',       a.icon + ' ' + a.label],
+    ['Fecha',      document.getElementById('fFecha').value],
+    ['Turno',      radVal('gTurno')],
+    ['Auditor',    document.getElementById('fAuditor').value],
+    ['Puesto',     radVal('gPuesto')],
+    ['Operador',   opVal()],
+    ['TL / GL',    tlglVal()],
+    ['Puntuación', sc.pts + ' / ' + sc.total + ' (' + sc.pct + '%)'],
+    ['Resultado',  sc.pct >= 80 ? '✓ CUMPLE' : '✗ NO CUMPLE'],
+    ['Firma TM',   document.getElementById('fNmTM').value   || '(no indicado)'],
+    ['Firma TL/GL',document.getElementById('fNmTLGL').value || '(no indicado)'],
+  ];
+  document.getElementById('resBox').innerHTML = rows.map(function(r) {
+    return '<div class="rr-row"><span class="rr-k">' + r[0] + '</span><span class="rr-v">' + r[1] + '</span></div>';
+  }).join('');
+}
+
+/* ─── ENVÍO ──────────────────────────────────────────────────── */
+function enviar() {
+  var btn = document.getElementById('btnSend');
+  var sc  = calcScore(), a = AUDITS[S.type];
+  var data = {
+    timestamp: new Date().toISOString(),
+    tipoAuditoria: a.label,
+    fecha: document.getElementById('fFecha').value,
+    turno: radVal('gTurno'),
+    auditor: document.getElementById('fAuditor').value,
+    puestoAuditor: radVal('gPuesto'),
+    operador: opVal(), tlgl: tlglVal(),
+    comentarios: document.getElementById('fComent').value,
+    puntaje: sc.pts, total: sc.total, porcentaje: sc.pct,
+    resultado: sc.pct >= 80 ? 'CUMPLE' : 'NO CUMPLE',
+    nombreTM: document.getElementById('fNmTM').value,
+    nombreTLGL: document.getElementById('fNmTLGL').value,
+    firmaTM: S.sigTM, firmaTLGL: S.sigTLGL,
+  };
+  a.rules.forEach(function(_, i) {
+    data['r' + (i + 1)] = S.ans[i + 1] === true ? 'Sí' : S.ans[i + 1] === false ? 'No' : '';
+  });
+
+  btn.innerHTML = '<span class="spin"></span>Guardando...';
+  btn.disabled  = true;
+
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  }).then(function() {
+    toast('✓ Registro guardado correctamente', 'ok');
+    btn.innerHTML = '✓ Guardado exitosamente';
+    btn.style.background = 'var(--gn)';
+    setTimeout(function() {
+      if (confirm('¿Iniciar una nueva auditoría?')) location.reload();
+    }, 2000);
+  }).catch(function() {
+    toast('Sin conexión — usa Copiar datos', 'err');
+    btn.innerHTML = '📤 Guardar en Base de Datos';
+    btn.disabled  = false;
+  });
+}
+
+/* ─── COPIAR AL PORTAPAPELES ─────────────────────────────────── */
+function copiar() {
+  var sc = calcScore(), a = AUDITS[S.type];
+  var txt = 'AUDITORÍA ' + a.label.toUpperCase() + ' – KTMEX\n';
+  txt += 'Fecha: '   + document.getElementById('fFecha').value   + '\n';
+  txt += 'Turno: '   + radVal('gTurno') + '  |  Auditor: ' + document.getElementById('fAuditor').value + '\n';
+  txt += 'Resultado: '+ sc.pts + '/' + sc.total + ' (' + sc.pct + '%) — ' + (sc.pct >= 80 ? 'CUMPLE' : 'NO CUMPLE') + '\n\n';
+  a.rules.forEach(function(r, i) {
+    txt += (i+1) + '. ' + (S.ans[i+1] === true ? 'SÍ' : 'NO') + ' — ' + r + '\n';
+  });
+  txt += '\nComentarios: ' + document.getElementById('fComent').value;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt)
+      .then(function() { toast('✓ Copiado al portapapeles', 'ok'); })
+      .catch(function() { iosCopy(txt); });
+  } else { iosCopy(txt); }
+}
+
+function iosCopy(txt) {
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;';
+  document.body.appendChild(ta);
+  if (/ipad|iphone/i.test(navigator.userAgent)) {
+    var r = document.createRange(); r.selectNodeContents(ta);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    ta.setSelectionRange(0, 999999);
+  } else { ta.focus(); ta.select(); }
+  try { document.execCommand('copy'); toast('✓ Copiado', 'ok'); }
+  catch(e) { toast('No se pudo copiar automáticamente', 'err'); }
+  document.body.removeChild(ta);
+}
+
+/* ─── TOAST ──────────────────────────────────────────────────── */
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '') + ' on';
+  setTimeout(function() { t.classList.remove('on'); }, 3000);
+}
+
+/* ─── INIT ───────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', function() {
+  var d    = new Date();
+  var yyyy = d.getFullYear();
+  var mm   = ('0' + (d.getMonth() + 1)).slice(-2);
+  var dd   = ('0' + d.getDate()).slice(-2);
+  document.getElementById('fFecha').value = yyyy + '-' + mm + '-' + dd;
+
+  // Detectar iOS y mostrar banner instalación
+  var ua = navigator.userAgent || '';
+  var isIOS = /iphone|ipad|ipod/i.test(ua);
+  var isChrome = /CriOS/i.test(ua);
+  var isStandalone = window.navigator.standalone === true;
+  if (isIOS && !isChrome && !isStandalone) {
+    document.getElementById('iosBanner').style.display = 'block';
+  }
+});
+</script>
+
+<!-- ── PWA: Registro Service Worker + Banner instalación ── -->
+<script>
+/* Registro del Service Worker */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg) { console.log('SW registrado:', reg.scope); })
+      .catch(function(err) { console.log('SW error:', err); });
+  });
+}
+
+/* Banner "Agregar a pantalla de inicio" — Android/Chrome */
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('visible');
+});
+
+function instalarApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(r) {
+    deferredPrompt = null;
+    document.getElementById('installBanner').style.display = 'none';
+  });
+}
+
+/* Ocultar banner si ya está instalada */
+window.addEventListener('appinstalled', function() {
+  document.getElementById('installBanner').style.display = 'none';
+});
+</script>
+</body>
+</html>
